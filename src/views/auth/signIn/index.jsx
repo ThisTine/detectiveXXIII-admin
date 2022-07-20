@@ -22,20 +22,12 @@
 */
 
 import React from "react";
-import { NavLink } from "react-router-dom";
 // Chakra imports
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  Icon,
-  Input,
-  InputGroup,
-  InputRightElement,
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -44,7 +36,7 @@ import {
 import DefaultAuth from "layouts/auth/Default";
 // Assets
 import illustration from "assets/img/auth/auth.png";
-import {BsMicrosoft} from 'react-icons/bs'
+import { BsMicrosoft } from 'react-icons/bs'
 
 function SignIn() {
   // Chakra color mode
@@ -77,7 +69,7 @@ function SignIn() {
             Sign in with Microsoft
           </Text>
         </Box>
-        <Button type="button" as="a" href={process.env.REACT_APP_BASE_URL+"/auth?isAdmin=true"} size={"lg"} colorScheme="linkedin"  textColor={"white"} bg={"#00A1F1"} > <Box pr={5}><BsMicrosoft/></Box>  Sign in with Microsoft</Button>
+        <Button type="button" as="a" href={process.env.REACT_APP_BASE_URL + "/auth?isAdmin=true"} size={"lg"} colorScheme="linkedin" textColor={"white"} bg={"#00A1F1"} > <Box pr={5}><BsMicrosoft /></Box>  Sign in with Microsoft</Button>
       </Flex>
     </DefaultAuth>
   );
