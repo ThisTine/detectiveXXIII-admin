@@ -21,8 +21,7 @@
 
 */
 
-import React, { useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import React from "react";
 // Chakra imports
 import {
   Box,
@@ -41,9 +40,6 @@ import { BsMicrosoft } from 'react-icons/bs'
 
 function SignIn() {
   // Chakra color mode
-  useEffect(() => {
-    console.log(process.env.REACT_APP_BASE_URL)
-  }, [])
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   return (
