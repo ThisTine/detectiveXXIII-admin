@@ -1,152 +1,127 @@
-import { useBoolean } from '@chakra-ui/react'
-import React from 'react'
+import { useBoolean, useToast } from '@chakra-ui/react'
+import useAxios from 'hooks/useAxios'
+import React, { useState } from 'react'
+import { useCallback } from 'react'
+import { useLayoutEffect } from 'react'
 import { createContext } from 'react'
+import LoadingPage from 'views/Loading/LoadingPage'
 
-const hints = [
-    {
-        "id": "cl5kxm2c00000q8vzt4okpt4g",
-        "location": "Fibo"
-    },
-    {
-        "id": "cl5l1v3bp0063osvz093rctyb",
-        "location": "common"
-    },
-    {
-        "id": "cl5l1v9ir0073osvzmn3gqii7",
-        "location": "lx"
-    },
-    {
-        "id": "cl5l1u4x00043osvz9275lnie",
-        "location": "หอหญิง"
-    },
-    {
-        "id": "cl5mi7blu00072svzfa9z6jl4",
-        "location": "rama2"
-    }
-]
-const eventgroups = [
-    {
-        "id": "cl5kyl8ml00008cvzprsxbg2o",
-        "hints": [
-            {
-                "location": "Fibo",
-                "id": "cl5kxm2c00000q8vzt4okpt4g"
-            }
-        ],
-        "users": [
-            {
-                "id": "a40dc8fe-269c-4054-92c7-00468b080a20",
-                "name": "PONGSAPUK LUBKIM",
-                "email": "pongsapuk.lubk@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    },
-    {
-        "id": "cl5micmrz00242svzx37b48jy",
-        "hints": [
-            {
-                "location": "rama2",
-                "id": "cl5mi7blu00072svzfa9z6jl4"
-            },
-            {
-                "location": "lx",
-                "id": "cl5l1v9ir0073osvzmn3gqii7"
-            }
-        ],
-        "users": [
-            {
-                "id": "c79daffa-4163-4d5e-a85f-e1437cf13448",
-                "name": "NATTAPAT TEERANUNTACHAI",
-                "email": "nattapat.teer@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    },
-    {
-        "id": "cl5mij1m50007f4vzblchxlwk",
-        "hints": [
-            {
-                "location": "lx",
-                "id": "cl5l1v9ir0073osvzmn3gqii7"
-            }
-        ],
-        "users": [
-            {
-                "id": "6c8c61b0-f92b-43ee-b8de-68d841f8a465",
-                "name": "THAMOLWAN JARUNGRATTANAPONG",
-                "email": "thamolwan.jaru@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    },
-    {
-        "id": "cl5mijbg60017f4vztjd3l2ig",
-        "hints": [
-            {
-                "location": "à¸´rama2",
-                "id": "cl5mi7blu00072svzfa9z6jl4"
-            }
-        ],
-        "users": [
-            {
-                "id": "0b8a07d7-c437-4560-befa-24c7a3c4ef4b",
-                "name": "PHURICHAYA KHEMVARAPORN",
-                "email": "phurichaya.khem@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    },
-    {
-        "id": "cl5miotgq0035f4vzlurkzpto",
-        "hints": [
-            {
-                "location": "à¸«à¸­à¸«à¸à¸´à¸‡",
-                "id": "cl5l1u4x00043osvz9275lnie"
-            }
-        ],
-        "users": [
-            {
-                "id": "e31aa354-c00f-4adf-8c8c-be8e7554949f",
-                "name": "SITTICHOK OUAMSIRI",
-                "email": "sittichok.ouam@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    },
-    {
-        "id": "cl5mip98o0045f4vzy8k1nxvf",
-        "hints": [
-            {
-                "location": "common",
-                "id": "cl5l1v3bp0063osvz093rctyb"
-            }
-        ],
-        "users": [
-            {
-                "id": "5377302b-7492-4e7b-9148-70442919b2db",
-                "name": "SORRAWIT KWANJA",
-                "email": "sorrawit.kwan@kmutt.ac.th",
-                "year": 2
-            }
-        ]
-    }
-]
+
 
 export const eventContext = createContext({
-    hints:[],
-    groups:[],
+    hints: [],
+    groups: [],
     isPresenting: false,
-    togglePresenting: ()=>{}
+    togglePresenting: () => { },
+    random: { func: async () => { }, isLoading: false },
+    deleteEventGroup: async (id) => { },
+    createEvent: async (ids) => { },
+    createHint: async (location) => { },
+    deleteHint: async (reqid) => { },
+    editHint: async ({ id, location }) => { }
 })
 
-const EventContextProvider = ({children}) => {
-    const [isPresenting,{toggle}] = useBoolean()
-  return (
-    <eventContext.Provider value={{hints,groups:eventgroups,isPresenting,togglePresenting:toggle}}>
-        {children}
-    </eventContext.Provider>
-  )
+const EventContextProvider = ({ children }) => {
+    const [isPresenting, { toggle }] = useBoolean()
+    const axios = useAxios()
+    const [isLoading, { off }] = useBoolean(true)
+    const [isRandom, { on: onRandom, off: offRandom }] = useBoolean()
+    const toast = useToast({ status: "error", position: "top-right", isClosable: true })
+    const [data, setdata] = useState({ groups: [], hints: [] })
+    const random = async () => {
+        try {
+            onRandom()
+            const { data: { groups } } = await axios().get("/event/random")
+            if (groups)
+                setdata((val) => ({ ...val, groups: [...groups] }))
+            offRandom()
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+            offRandom()
+        }
+    }
+    const deleteEventGroup = async (eventId) => {
+        try {
+            const { data: { id } } = await axios().delete("/eventgroup", { data: { id: eventId } })
+            if (id) {
+                setdata({ ...data, groups: data.groups.filter(item => (item.id !== id)) })
+            }
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }
+    const createEvent = async (ids) => {
+        try {
+            const { data } = await axios().post("/eventgroup", { hints: ids })
+            if (data) {
+                setdata((val) => ({ ...val, groups: [...val.groups, data] }))
+            }
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }
+    const createHint = async (location) => {
+        try {
+            const { data } = await axios().post("/event/hint", { location })
+            setdata((val) => ({ ...val, hints: [...val.hints, data] }))
+
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }
+    const deleteHint = async (reqid) => {
+        try {
+            const { data: { id } } = await axios().delete("/event/hint", { data: { id: reqid } })
+            if (id) {
+                setdata((val) => ({ ...val, hints: val.hints.filter(item => item.id !== id) }))
+                const { data: { groups } } = await axios().get("/eventgroup")
+                if (groups)
+                    setdata((val) => ({ ...val, groups: [...groups] }))
+            }
+
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }
+    const editHint = async ({ id, location }) => {
+        try {
+            const { data: hintdata } = await axios().put("/event/hint", { id, location })
+            if (hintdata) {
+                setdata((val) => ({ ...val, hints: val.hints.map(item => item.id !== id ? item : ({ ...hintdata })) }))
+                const { data: { groups } } = await axios().get("/eventgroup")
+                if (groups)
+                    setdata((val) => ({ ...val, groups: [...groups] }))
+            }
+
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }
+    const init = useCallback(async () => {
+        try {
+            const { data: { groups } } = await axios().get("/eventgroup")
+            const { data: { hints } } = await axios().get("/event/hint")
+            if (groups && hints)
+                setdata({ groups: [...groups], hints: [...hints] })
+        } catch (err) {
+            toast({ title: "Error", description: err.message })
+        }
+    }, [axios])
+    useLayoutEffect(() => {
+        init().finally(off)
+    }, [init])
+    if (isLoading)
+        return <LoadingPage />
+
+    return (
+        <eventContext.Provider value={{
+            hints: data.hints, groups: data.groups, isPresenting,
+            togglePresenting: toggle, random: { func: random, isLoading: isRandom },
+            deleteEventGroup, createEvent, createHint, deleteHint, editHint
+        }}>
+            {children}
+        </eventContext.Provider>
+    )
 }
 
 export default EventContextProvider
