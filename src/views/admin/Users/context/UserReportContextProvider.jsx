@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useLayoutEffect } from 'react'
 import { createContext } from 'react';
 import Swal from 'sweetalert2';
-import {useToast} from '@chakra-ui/react'
+import { useBoolean, useToast } from '@chakra-ui/react'
+import useAxios from 'hooks/useAxios';
+import LoadingPage from 'views/Loading/LoadingPage';
+import { useCallback } from 'react';
 
 const mockup = [
     {
@@ -47,32 +50,53 @@ const mockup = [
 ];
 
 export const userReportContext = createContext({
-    users:[],
-    deleteUser: async (id)=>{}
+    users: [],
+    deleteUser: async (id) => { }
 })
 
 const UserReportContextProvider = (props) => {
-    const [users,setusers] = useState(mockup)
-    const errToast = useToast({status:"error",position:"top-right",isClosable:true})
-    const deleteUser = async (id)=>{
-        try{
-            const confirm = await Swal.fire({title:"Are you sure that you want to delete this user",
-            showCancelButton:true,confirmButtonText:"Delete",confirmButtonColor:"red",text:`deleting ${id}`})
-             if(confirm.isDenied || confirm.isDismissed){
-                 throw new Error("Canceled")
-             }
-             await new Promise( ()=> setTimeout(()=>{
-                setusers(users.filter(item=>item.id !== id))
-             },1000))
-             console.log("deleting")
-         }catch(err){
-             console.log(err)
-             errToast({title:err.toString()})
-         }
+    const [users, setusers] = useState(mockup)
+    const errToast = useToast({ status: "error", position: "top-right", isClosable: true })
+    const axios = useAxios()
+    const [isLoading, { off, on }] = useBoolean()
+    const deleteUser = async (id) => {
+        try {
+            const confirm = await Swal.fire({
+                title: "Are you sure that you want to delete this user",
+                showCancelButton: true, confirmButtonText: "Delete", confirmButtonColor: "red", text: `deleting ${id}`
+            })
+            if (confirm.isDenied || confirm.isDismissed) {
+                throw new Error("Canceled")
+            }
+            const { data: { id: userId } } = await axios().delete("/user", { data: { id: id } })
+            if (userId) {
+                setusers((val) => val.filter(item => item.id !== userId))
+            }
+        } catch (err) {
+            console.log(err)
+            errToast({ title: err.toString() })
+        }
     }
-  return (
-    <userReportContext.Provider {...props} value={{users:[...users],deleteUser}} />
-  )
+    const init = useCallback(async () => {
+        try {
+            const { data: { users } } = await axios().get("/users")
+            console.log(users)
+            if (users) {
+                setusers([...users])
+            }
+        } catch (err) {
+            errToast({ title: "Error", description: err.toString() })
+        }
+    }, [axios, errToast])
+    useLayoutEffect(() => {
+        on()
+        init().finally(off)
+    }, [init, on, off])
+    if (isLoading)
+        return <LoadingPage />
+    return (
+        <userReportContext.Provider {...props} value={{ users: [...users], deleteUser }} />
+    )
 }
 
 export default UserReportContextProvider
