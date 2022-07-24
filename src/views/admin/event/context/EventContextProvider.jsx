@@ -31,12 +31,12 @@ const EventContextProvider = ({ children }) => {
     const random = async () => {
         try {
             onRandom()
-            const { data: { groups } } = await axios().get("/event/random")
+            const { data: { groups } } = await axios().post("/event/random")
             if (groups)
                 setdata((val) => ({ ...val, groups: [...groups] }))
             offRandom()
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
             offRandom()
         }
     }
@@ -47,7 +47,7 @@ const EventContextProvider = ({ children }) => {
                 setdata({ ...data, groups: data.groups.filter(item => (item.id !== id)) })
             }
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
     }
     const createEvent = async (ids) => {
@@ -57,7 +57,7 @@ const EventContextProvider = ({ children }) => {
                 setdata((val) => ({ ...val, groups: [...val.groups, data] }))
             }
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
     }
     const createHint = async (location) => {
@@ -66,7 +66,7 @@ const EventContextProvider = ({ children }) => {
             setdata((val) => ({ ...val, hints: [...val.hints, data] }))
 
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
     }
     const deleteHint = async (reqid) => {
@@ -80,7 +80,7 @@ const EventContextProvider = ({ children }) => {
             }
 
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
     }
     const editHint = async ({ id, location }) => {
@@ -94,7 +94,7 @@ const EventContextProvider = ({ children }) => {
             }
 
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
     }
     const init = useCallback(async () => {
@@ -104,12 +104,12 @@ const EventContextProvider = ({ children }) => {
             if (groups && hints)
                 setdata({ groups: [...groups], hints: [...hints] })
         } catch (err) {
-            toast({ title: "Error", description: err.message })
+            toast({ title: "Error", description: err.response.data })
         }
-    }, [axios])
+    }, [axios, toast])
     useLayoutEffect(() => {
         init().finally(off)
-    }, [init])
+    }, [init, off])
     if (isLoading)
         return <LoadingPage />
 

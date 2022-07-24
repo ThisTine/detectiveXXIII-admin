@@ -73,8 +73,7 @@ const UserReportContextProvider = (props) => {
                 setusers((val) => val.filter(item => item.id !== userId))
             }
         } catch (err) {
-            console.log(err)
-            errToast({ title: err.toString() })
+            errToast({ title: err.response.data })
         }
     }
     const init = useCallback(async () => {
@@ -85,7 +84,7 @@ const UserReportContextProvider = (props) => {
                 setusers([...users])
             }
         } catch (err) {
-            errToast({ title: "Error", description: err.toString() })
+            errToast({ title: "Error", description: err.response.data })
         }
     }, [axios, errToast])
     useLayoutEffect(() => {
