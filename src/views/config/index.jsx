@@ -8,7 +8,7 @@ const Config = () => {
     const [isLoading, { on, off }] = useBoolean()
     const axios = useAxios()
     const toast = useToast({ status: "error", position: "top-right", isClosable: true })
-    const [gameConfig, setGameConfig] = useState({ isGameReady: false, isEventReady: false })
+    const [gameConfig, setGameConfig] = useState({ isGameReady: false, isEventReady: false, isGameEnd: false })
     const init = useCallback(async () => {
         try {
             const { data } = await axios().get("/config")
@@ -19,15 +19,15 @@ const Config = () => {
             console.log(err)
             toast({ title: "error", description: err.message })
         }
-    }, [axios])
+    }, [axios, toast])
     useLayoutEffect(() => {
         on()
         init().finally(off)
-    }, [init])
+    }, [init, on, off])
     const ChangeSetting = async (input, value) => {
         try {
             on()
-            const { data } = await axios().put("/config", { ... { [input]: value } })
+            const { data } = await axios().put("/config", { ...{ [input]: value } })
             if (data)
                 setGameConfig({ ...data })
             off()
@@ -49,6 +49,13 @@ const Config = () => {
                     <HStack justifyContent={"space-between"} >
                         <Heading size={"md"}>Event ready</Heading>
                         {isLoading ? <Skeleton w={10} h={5} /> : <Switch isChecked={gameConfig['isEventReady']} size={"lg"} onChange={(e) => ChangeSetting("isEventReady", e.target.checked)} />}
+                    </HStack>
+                </Card>
+
+                <Card>
+                    <HStack justifyContent={"space-between"} >
+                        <Heading size={"md"}>Game ended</Heading>
+                        {isLoading ? <Skeleton w={10} h={5} /> : <Switch isChecked={gameConfig['isGameEnd']} size={"lg"} onChange={(e) => ChangeSetting("isGameEnd", e.target.checked)} />}
                     </HStack>
                 </Card>
             </SimpleGrid>

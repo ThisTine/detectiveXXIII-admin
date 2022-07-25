@@ -51,14 +51,28 @@ const mockup = [
 
 export const userReportContext = createContext({
     users: [],
-    deleteUser: async (id) => { }
+    rooms: [],
+    deleteUser: async (id) => { },
+    assignUserToRoom: async (userid, roomId) => { }
 })
 
 const UserReportContextProvider = (props) => {
     const [users, setusers] = useState(mockup)
+    const [room, setroom] = useState([])
     const errToast = useToast({ status: "error", position: "top-right", isClosable: true })
     const axios = useAxios()
     const [isLoading, { off, on }] = useBoolean()
+    const assignUserToRoom = async (userid, roomId) => {
+        try {
+            const { data } = await axios().put("/room", { roomId, userIds: userid })
+            if (data) {
+                // setroom((val) => val.map(item => (item.id === roomId ? ({ ...data }) : item)))
+                await init()
+            }
+        } catch (err) {
+            errToast({ title: err.response.data })
+        }
+    }
     const deleteUser = async (id) => {
         try {
             const confirm = await Swal.fire({
@@ -79,9 +93,10 @@ const UserReportContextProvider = (props) => {
     const init = useCallback(async () => {
         try {
             const { data: { users } } = await axios().get("/users")
-            console.log(users)
-            if (users) {
+            const { data } = await axios().get("/room")
+            if (users && data) {
                 setusers([...users])
+                setroom([...data])
             }
         } catch (err) {
             errToast({ title: "Error", description: err.response.data })
@@ -94,7 +109,7 @@ const UserReportContextProvider = (props) => {
     if (isLoading)
         return <LoadingPage />
     return (
-        <userReportContext.Provider {...props} value={{ users: [...users], deleteUser }} />
+        <userReportContext.Provider {...props} value={{ users: [...users], deleteUser, rooms: [...room], assignUserToRoom }} />
     )
 }
 
