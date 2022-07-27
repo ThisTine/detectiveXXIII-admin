@@ -21,6 +21,7 @@ import { useContext } from "react";
 import UserReportContextProvider, { userReportContext } from "./context/UserReportContextProvider";
 import Room from "./components/Room";
 import UserWithNoPartner from "./components/UserWithNoPartner";
+import GroupUserButton from "./components/GroupUserButton";
 
 
 
@@ -92,7 +93,10 @@ const Users = () => {
                 </Box>
             </Card>
             <Card mt={5} filter={isBlur ? `blur(10px)` : ""} transition="0.25s" >
-                <Heading>Partners</Heading>
+                <HStack>
+                    <Heading>Partners</Heading>
+                    <GroupUserButton />
+                </HStack>
                 <SimpleGrid columns={{ base: 1, md: 2, lg: 3, "2xl": 4 }} gap={2}>
                     {rooms.map(item => <Room item={item} key={item.id} />)}
                 </SimpleGrid>
