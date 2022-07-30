@@ -10,52 +10,52 @@ import EventContextProvider, { eventContext } from './context/EventContextProvid
 
 
 const Event = () => {
-    const {isOpen,onClose,onOpen} = useDisclosure()
-    const {hints,groups,isPresenting,togglePresenting} = useContext(eventContext)
-  return (
-    <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-        <SimpleGrid mb={3} columns={{ base: 3, md: 5 }}>
-            <Card>
-                <HStack justifyContent={"space-between"}>
-                <Heading size={"md"}>Presentation mode</Heading>
-                <Switch value={isPresenting} onChange={togglePresenting} />
-                </HStack>
-            </Card>
-        </SimpleGrid>
-        <CreateEventModal {...{isOpen,onClose,onOpen}} />
-        <SimpleGrid columns={isPresenting ? {base:1} : { base: 1, md: 2 }} gap={"20px"}>
-            {!isPresenting && <Card>
-                <Heading size="md">Hints</Heading>
-            <AddHint />
-            <VStack>
-                {hints.map(item=><HintCard item={item} key={item.id} />)}
-            </VStack>
-            </Card>}
-
-            <Card>
-            <Heading size="md">Events</Heading>
-            <Card gap={3} w="100%" >
-                <HStack w="100%" justifyContent={"space-between"}>
-                <Button colorScheme={"teal"} onClick={onOpen}>Create</Button>
-                <Button colorScheme={"purple"}>Random</Button>
-                </HStack>
-
+    const { isOpen, onClose, onOpen } = useDisclosure()
+    const { hints, groups, isPresenting, togglePresenting, random: { isLoading, func } } = useContext(eventContext)
+    return (
+        <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+            <SimpleGrid mb={3} columns={{ base: 1, md: 2, lg: 4 }}>
+                <Card>
+                    <HStack justifyContent={"space-between"}>
+                        <Heading size={"md"}>Presentation mode</Heading>
+                        <Switch value={isPresenting} onChange={togglePresenting} />
+                    </HStack>
                 </Card>
-            <SimpleGrid columns={{base:1,md: isPresenting ? 3 : 1}} gap={2}>
-                {groups.map(item=><EventGroup item={item} key={item.id} />)}
             </SimpleGrid>
-            </Card>
-            
-        </SimpleGrid>
+            <CreateEventModal {...{ isOpen, onClose, onOpen }} />
+            <SimpleGrid columns={isPresenting ? { base: 1 } : { base: 1, md: 2 }} gap={"20px"}>
+                {!isPresenting && <Card>
+                    <Heading size="md">Hints</Heading>
+                    <AddHint />
+                    <VStack>
+                        {hints.map(item => <HintCard item={item} key={item.id} />)}
+                    </VStack>
+                </Card>}
 
-    </Box>
-  )
+                <Card>
+                    <Heading size="md">Events</Heading>
+                    <Card gap={3} w="100%" >
+                        <HStack w="100%" justifyContent={"space-between"}>
+                            <Button colorScheme={"teal"} onClick={onOpen}>Create</Button>
+                            <Button colorScheme={"purple"} onClick={func} isLoading={isLoading} >Random</Button>
+                        </HStack>
+
+                    </Card>
+                    <SimpleGrid columns={{ base: 1, md: isPresenting ? 3 : 1 }} gap={2}>
+                        {groups.map(item => <EventGroup item={item} key={item.id} />)}
+                    </SimpleGrid>
+                </Card>
+
+            </SimpleGrid>
+
+        </Box>
+    )
 }
 
 
-const EventWithProvider = ()=>{
+const EventWithProvider = () => {
     return <EventContextProvider>
-        <Event/>
+        <Event />
     </EventContextProvider>
 }
 
