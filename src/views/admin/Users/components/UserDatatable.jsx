@@ -4,7 +4,6 @@ import {
     useColorModeValue,
     Text,
     Button,
-    useToast,
     useBoolean,
 } from "@chakra-ui/react";
 import DataTable from "react-data-table-component";
@@ -45,13 +44,13 @@ const UserDatatable = () => {
     const columns = [
         getName({ input: "id" }),
         getName({ input: "name" }),
+        getName({ input: "studentId" }),
         getName({ input: "email" }),
         getName({ input: "status", isStatus: true }),
         getName({ input: "lifes" }),
         getName({ input: "isPlayable" }),
         getName({ input: "partnerCount" }),
         getName({ input: "id", deleteRow: true }),
-
     ];
 
     return (
