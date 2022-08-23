@@ -10,11 +10,13 @@ import {
     Switch,
     Input,
     Button,
+    useToast,
 } from "@chakra-ui/react";
 
 import Card from "components/card/Card";
 import MiniStatistics from 'components/card/MiniStatistics'
 import IconBox from "components/icons/IconBox";
+import useAxios from 'hooks/useAxios';
 import { BiUser, BiGroup, BiRefresh } from 'react-icons/bi'
 import UserDatatable from "./components/UserDatatable";
 import { useContext } from "react";
@@ -32,7 +34,18 @@ const Users = () => {
     const brandColor = useColorModeValue("brand.500", "white");
     const { users, rooms, setsearch, init } = useContext(userReportContext)
     const [isBlur, { toggle }] = useBoolean(true)
+    const axios = useAxios()
     const [isIniting, { on, off }] = useBoolean(false)
+    const toast = useToast({ status: "error", title: "Error" })
+
+    const randomUsers = async () => {
+        try {
+            await axios().post("/user/randomparing")
+            await init()
+        } catch (err) {
+            toast({ description: err.toString() })
+        }
+    }
 
     return (
         <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
@@ -91,6 +104,18 @@ const Users = () => {
                     />}
                     name="Refresh"
                     value={<Button colorScheme={"linkedin"} isLoading={isIniting} onClick={() => { on(); init().finally(off) }} >Init</Button>}
+                />
+                <MiniStatistics
+                    startContent={<IconBox
+                        w='56px'
+                        h='56px'
+                        bg={boxBg}
+                        icon={
+                            <Icon w='32px' h='32px' as={BiRefresh} color={brandColor} />
+                        }
+                    />}
+                    name="Refresh"
+                    value={<Button colorScheme={"linkedin"} isLoading={isIniting} onClick={() => { on(); randomUsers().finally(off) }} >Random</Button>}
                 />
                 <Card>
                     <Heading size="sm">show partners</Heading>
