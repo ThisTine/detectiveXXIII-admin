@@ -63,7 +63,7 @@ const CreateEventModal = ({ isOpen, onClose }) => {
           <VStack>
             <Card shadow="lg" >
               <Heading size="md">Hints order</Heading>
-              <HStack mt={5}>
+              <HStack mt={5} wrap="wrap">
                 {selectedhints.map(item => <Button colorScheme={"teal"} onClick={() => removehint(item)} key={item.id}>{item.location}</Button>)}
               </HStack>
 
@@ -71,7 +71,7 @@ const CreateEventModal = ({ isOpen, onClose }) => {
 
             <Card shadow="lg" >
               <Heading size="md">Select hints</Heading>
-              <HStack mt={5}>
+              <HStack mt={5} wrap="wrap">
                 {avhints.map(item => <Button colorScheme={"blue"} onClick={() => addhint(item)} key={item.id}>{item.location}</Button>)}
               </HStack>
             </Card>
